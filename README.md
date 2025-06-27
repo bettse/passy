@@ -1,12 +1,13 @@
 # Passy: Flipper Zero Passport Reader
 
-**Passy** is a tool for reading electronic passports (ePassports/eMRTDs) using the Flipper Zero device. It extracts and decodes data securely stored in modern passports, designed for hobbyists, researchers, and security professionals.
+**Passy** is a tool for reading electronic passports (ePassports/eMRTDs) and some national ID cards using the Flipper Zero device. It extracts and decodes data securely stored in modern passports, designed for hobbyists, researchers, and security professionals.
 
 ---
 
 ## Features
 
 - Reads and decodes ePassport data from a wide range of countries
+- Supports some national ID cards too
 - Utilizes MRZ (Machine Readable Zone) information for secure access
 - Extensible for new country support—contribute your flag!
 - Advanced menu for debugging and exploring additional data groups (DGs)
