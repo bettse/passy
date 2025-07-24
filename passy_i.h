@@ -35,9 +35,9 @@
 
 #define PASSY_TEXT_STORE_SIZE            128
 #define PASSY_FILE_NAME_MAX_LENGTH       32
-#define PASSY_PASSPORT_NUMBER_MAX_LENGTH 32
-#define PASSY_DOB_MAX_LENGTH             8
-#define PASSY_DOE_MAX_LENGTH             8
+#define PASSY_PASSPORT_NUMBER_MAX_LENGTH 20 // Excluding NULL-terminator
+#define PASSY_DOB_MAX_LENGTH             6 // YYMMDD, excluding NULL-terminator
+#define PASSY_DOE_MAX_LENGTH             6 // YYMMDD, excluding NULL-terminator
 
 #define PASSY_DG1_MAX_LENGTH 256
 
