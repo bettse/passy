@@ -95,18 +95,24 @@ bool passy_scene_read_on_event(void* context, SceneManagerEvent event) {
             if(passy->bytes_total == 0) {
                 popup_set_header(popup, "Reading", 68, 30, AlignLeft, AlignTop);
             } else {
-                // Update the header with the current bytes read
-                char header[32];
-                snprintf(
-                    header,
-                    sizeof(header),
-                    "Reading\n%d/%dk",
-                    passy->offset,
-                    (passy->bytes_total / 1024));
-                popup_set_header(popup, header, 68, 30, AlignLeft, AlignTop);
+                static uint32_t last_update = 0;
+                if(furi_get_tick() > last_update + 1000) {
+                    last_update = furi_get_tick();
+                    // Update the header with the current bytes read
+                    char header[32];
+                    snprintf(
+                        header,
+                        sizeof(header),
+                        "Reading\n%d/%dk",
+                        passy->offset,
+                        (passy->bytes_total / 1024));
+                    FURI_LOG_D(TAG, header);
+                    popup_set_header(popup, header, 68, 30, AlignLeft, AlignTop);
+                }
             }
         }
     } else if(event.type == SceneManagerEventTypeBack) {
+        //TODO: flipper hangs when pressing back while reading big DG
         scene_manager_search_and_switch_to_previous_scene(
             passy->scene_manager, PassySceneMainMenu);
         consumed = true;
