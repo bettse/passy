@@ -10,6 +10,7 @@
 #include <dialogs/dialogs.h>
 
 #include <gui/modules/submenu.h>
+#include <gui/modules/variable_item_list.h>
 #include <gui/modules/popup.h>
 #include <gui/modules/loading.h>
 #include <gui/modules/text_input.h>
@@ -69,6 +70,7 @@ struct Passy {
 
     // Common Views
     Submenu* submenu;
+    VariableItemList* variable_item_list;
     Popup* popup;
     Loading* loading;
     TextInput* text_input;
@@ -105,6 +107,7 @@ struct Passy {
 
 typedef enum {
     PassyViewMenu,
+    PassyViewVariableItemList,
     PassyViewPopup,
     PassyViewLoading,
     PassyViewTextInput,
