@@ -194,7 +194,7 @@ NfcCommand passy_reader_get_challenge(PassyReader* passy_reader) {
     return ret;
 }
 
-NfcCommand passy_reader_authenticate(PassyReader* passy_reader) {
+NfcCommand passy_reader_external_authenticate(PassyReader* passy_reader) {
     NfcCommand ret = NfcCommandContinue;
     BitBuffer* tx_buffer = passy_reader->tx_buffer;
 
@@ -492,7 +492,7 @@ NfcCommand passy_reader_state_machine(PassyReader* passy_reader) {
             view_dispatcher_send_custom_event(passy->view_dispatcher, PassyCustomEventReaderError);
             break;
         }
-        ret = passy_reader_authenticate(passy_reader);
+        ret = passy_reader_external_authenticate(passy_reader);
         if(ret != NfcCommandContinue) {
             view_dispatcher_send_custom_event(passy->view_dispatcher, PassyCustomEventReaderError);
             break;
