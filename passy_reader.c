@@ -481,6 +481,16 @@ NfcCommand passy_reader_state_machine(PassyReader* passy_reader) {
 
     use_secure_messaging = false;
 
+    //TODO: ICAO 9303 p11 §4.2 steps
+    //- Read EF.CardAccess (REQUIRED)
+    //  If not available or does not contain PACE params, try BAC
+    //- Read EF.DIR (OPTIONAL)
+    //  Check list of applications present
+    //- PACE (CONDITIONAL)
+    //- BAC (CONDITIONAL)
+
+    FURI_LOG_D(TAG, "Selected Auth method: %s", passy_auth_method_string(passy->auth_mehod));
+
     do {
         ret = passy_reader_select_application(passy_reader);
         if(ret != NfcCommandContinue) {
