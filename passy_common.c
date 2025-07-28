@@ -37,7 +37,7 @@ void passy_log_bitbuffer(char* tag, char* prefix, BitBuffer* buffer) {
     }
 }
 
-void passy_log_buffer(char* tag, char* prefix, uint8_t* buffer, size_t buffer_len) {
+void passy_log_buffer(char* tag, char* prefix, const uint8_t* buffer, size_t buffer_len) {
     char display[PASSY_WORKER_MAX_BUFFER_SIZE * 2 + 1];
 
     size_t limit = MIN((size_t)PASSY_WORKER_MAX_BUFFER_SIZE, buffer_len);
