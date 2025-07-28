@@ -95,6 +95,7 @@ bool passy_scene_read_on_event(void* context, SceneManagerEvent event) {
             if(passy->bytes_total == 0) {
                 popup_set_header(popup, "Reading", 68, 30, AlignLeft, AlignTop);
             } else {
+                //TODO: fix still not showing progress
                 static uint32_t last_update = 0;
                 if(furi_get_tick() > last_update + 1000) {
                     last_update = furi_get_tick();
