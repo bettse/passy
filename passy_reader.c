@@ -276,8 +276,9 @@ NfcCommand passy_reader_select_file(PassyReader* passy_reader, uint16_t file_id)
     select_0101[5] = (file_id >> 8) & 0xFF;
     select_0101[6] = file_id & 0xFF;
 
-    secure_messaging_wrap_apdu(
-        passy_reader->secure_messaging, select_0101, sizeof(select_0101), passy_reader->tx_buffer);
+    bit_buffer_append_bytes(passy_reader->tx_buffer, select_0101, sizeof(select_0101));
+
+    secure_messaging_wrap_apdu(passy_reader->secure_messaging, passy_reader->tx_buffer);
 
     ret = passy_reader_send(passy_reader);
     if(ret != NfcCommandContinue) {
@@ -304,8 +305,9 @@ NfcCommand passy_reader_read_binary(
     }
     uint8_t read_binary[] = {0x00, 0xB0, (offset >> 8) & 0xff, (offset >> 0) & 0xff, Le};
 
-    secure_messaging_wrap_apdu(
-        passy_reader->secure_messaging, read_binary, sizeof(read_binary), passy_reader->tx_buffer);
+    bit_buffer_append_bytes(passy_reader->tx_buffer, read_binary, sizeof(read_binary));
+
+    secure_messaging_wrap_apdu(passy_reader->secure_messaging, passy_reader->tx_buffer);
 
     ret = passy_reader_send(passy_reader);
     if(ret != NfcCommandContinue) {
