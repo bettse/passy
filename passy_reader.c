@@ -53,6 +53,7 @@ PassyReader* passy_reader_alloc(Passy* passy) {
     passy_reader->passy = passy;
     passy_reader->DG1 = passy->DG1;
     passy_reader->COM = passy->COM;
+    passy_reader->CardAccess = passy->CardAccess;
     passy_reader->dg_header = passy->dg_header;
     passy_reader->tx_buffer = bit_buffer_alloc(PASSY_READER_MAX_BUFFER_SIZE);
     passy_reader->rx_buffer = bit_buffer_alloc(PASSY_READER_MAX_BUFFER_SIZE);
@@ -332,6 +333,38 @@ NfcCommand passy_reader_read_binary(
     return ret;
 }
 
+NfcCommand passy_reader_read_file(PassyReader* passy_reader, BitBuffer* target) {
+    NfcCommand ret = NfcCommandContinue;
+    Passy* passy = passy_reader->passy;
+
+    bit_buffer_reset(target);
+    uint8_t header[4];
+    ret = passy_reader_read_binary(passy_reader, 0x00, sizeof(header), header);
+    if(ret != NfcCommandContinue) {
+        view_dispatcher_send_custom_event(passy->view_dispatcher, PassyCustomEventReaderError);
+        return ret;
+    }
+
+    size_t body_size = 1 + asn1_length_length(header + 1) + asn1_length(header + 1);
+    uint8_t body_offset = sizeof(header);
+    bit_buffer_append_bytes(target, header, sizeof(header));
+    do {
+        view_dispatcher_send_custom_event(passy->view_dispatcher, PassyCustomEventReaderReading);
+        uint8_t chunk[PASSY_READER_DG1_CHUNK_SIZE]; // TODO: determine optimal chunk size for reading
+        uint8_t Le = MIN(sizeof(chunk), (size_t)(body_size - body_offset));
+
+        ret = passy_reader_read_binary(passy_reader, body_offset, Le, chunk);
+        if(ret != NfcCommandContinue) {
+            view_dispatcher_send_custom_event(passy->view_dispatcher, PassyCustomEventReaderError);
+            break;
+        }
+        bit_buffer_append_bytes(target, chunk, Le);
+        body_offset += Le;
+    } while(body_offset < body_size);
+
+    return ret;
+}
+
 NfcCommand passy_reader_read_com(PassyReader* passy_reader) {
     NfcCommand ret = NfcCommandContinue;
     Passy* passy = passy_reader->passy;
@@ -492,6 +525,21 @@ NfcCommand passy_reader_state_machine(PassyReader* passy_reader) {
     FURI_LOG_D(TAG, "Selected Auth method: %s", passy_auth_method_string(passy->auth_mehod));
 
     do {
+        ret = passy_reader_select_file(passy_reader, PassyReadCardAccess);
+        if(ret == NfcCommandContinue) {
+            FURI_LOG_D(TAG, "Select CardAccess success");
+
+            ret = passy_reader_read_file(passy_reader, passy_reader->CardAccess);
+            if(ret != NfcCommandContinue) {
+                view_dispatcher_send_custom_event(
+                    passy->view_dispatcher, PassyCustomEventReaderError);
+                break;
+            }
+            passy_log_bitbuffer(TAG, "CardAccess", passy_reader->CardAccess);
+        } else {
+            FURI_LOG_D(TAG, "Select CardAccess failed");
+        }
+
         ret = passy_reader_select_application(passy_reader);
         if(ret != NfcCommandContinue) {
             view_dispatcher_send_custom_event(passy->view_dispatcher, PassyCustomEventReaderError);
@@ -519,6 +567,7 @@ NfcCommand passy_reader_state_machine(PassyReader* passy_reader) {
             break;
         }
 
+        // TODO: use general passy_reader_read_file
         if(passy->read_type == PassyReadCOM) {
             ret = passy_reader_read_com(passy_reader);
         } else if(passy->read_type == PassyReadDG1) {

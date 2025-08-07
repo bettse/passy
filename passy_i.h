@@ -40,7 +40,8 @@
 #define PASSY_DOB_MAX_LENGTH             6 // YYMMDD, excluding NULL-terminator
 #define PASSY_DOE_MAX_LENGTH             6 // YYMMDD, excluding NULL-terminator
 
-#define PASSY_DG1_MAX_LENGTH 256
+#define PASSY_DG1_MAX_LENGTH        256
+#define PASSY_CARDACCESS_MAX_LENGTH 256 // TODO: get from specs, this is a guess
 
 enum PassyCustomEvent {
     // Reserve first 100 events for button types and indexes, starting from 0
@@ -93,6 +94,7 @@ struct Passy {
     char date_of_expiry[PASSY_DOE_MAX_LENGTH + 1];
 
     BitBuffer* DG1;
+    BitBuffer* CardAccess;
     BitBuffer* COM;
     BitBuffer* dg_header;
 

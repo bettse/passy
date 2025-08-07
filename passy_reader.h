@@ -30,6 +30,7 @@ typedef struct {
     BitBuffer* rx_buffer;
 
     BitBuffer* DG1;
+    BitBuffer* CardAccess;
     BitBuffer* COM;
     BitBuffer* dg_header;
 
