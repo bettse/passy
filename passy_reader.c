@@ -2,6 +2,7 @@
 
 #define ASN_EMIT_DEBUG 0
 #include <lib/asn1/COM.h>
+#include <lib/asn1/SecurityInfos.h>
 
 #define TAG                         "PassyReader"
 #define PASSY_READER_DG1_CHUNK_SIZE 0x20
@@ -507,6 +508,79 @@ NfcCommand passy_reader_read_dg2_or_dg7(PassyReader* passy_reader) {
     return ret;
 }
 
+bool passy_cardaccess_parse(Passy* passy) {
+    SecurityInfos_t* secinfos = 0;
+    SecurityInfo_t* secinfo;
+    char payloadDebug[384] = {0};
+
+    secinfos = calloc(1, sizeof(*secinfos));
+    assert(secinfos);
+
+    asn_dec_rval_t rval = asn_decode(
+        0,
+        ATS_DER,
+        &asn_DEF_SecurityInfos,
+        (void**)&secinfos,
+        bit_buffer_get_data(passy->CardAccess),
+        bit_buffer_get_size(passy->CardAccess));
+
+    if(rval.code == RC_OK) {
+        FURI_LOG_I(TAG, "ASN.1 decode success");
+        if(secinfos->list.count < 1) {
+            FURI_LOG_I(TAG, "No SecurityInfo in CardAccess");
+            return false;
+        }
+
+        for(int i = 0; i < secinfos->list.count; ++i) {
+            secinfo = secinfos->list.array[0];
+            memset(payloadDebug, 0, sizeof(payloadDebug));
+            (&asn_DEF_SecurityInfo)
+                ->op->print_struct(
+                    &asn_DEF_SecurityInfo, secinfo, 1, print_struct_callback, payloadDebug);
+
+            if(strlen(payloadDebug) > 0) {
+                FURI_LOG_D(TAG, "SecurityInfo: %s", payloadDebug);
+            } else {
+                FURI_LOG_D(TAG, "Received empty SecurityInfo");
+            }
+        }
+
+        //TODO: algorithm to select the best or try multiple security paramters
+        secinfo = secinfos->list.array[0];
+
+        // 0.4.0.127.0.7.2.2.4.2.4 - id_PACE_ECDH_IM_AES_CBC_CMAC_256
+
+        OBJECT_IDENTIFIER_t id_PACE_ECDH_IM_AES_CBC_CMAC_256;
+        uint32_t oid[] = {0, 4, 0, 127, 0, 7, 2, 2, 4, 2, 4};
+        OBJECT_IDENTIFIER_set_arcs(
+            &id_PACE_ECDH_IM_AES_CBC_CMAC_256, oid, sizeof(oid) / sizeof(oid[0]));
+
+        memset(payloadDebug, 0, sizeof(payloadDebug));
+        (&asn_DEF_OBJECT_IDENTIFIER)
+            ->op->print_struct(
+                &asn_DEF_OBJECT_IDENTIFIER,
+                &id_PACE_ECDH_IM_AES_CBC_CMAC_256,
+                1,
+                print_struct_callback,
+                payloadDebug);
+        if(strlen(payloadDebug) > 0) {
+            FURI_LOG_D(TAG, "id_PACE_ECDH_IM_AES_CBC_CMAC_256: %s", payloadDebug);
+        } else {
+            FURI_LOG_D(TAG, "id_PACE_ECDH_IM_AES_CBC_CMAC_256: failed");
+        }
+
+        //int compared = asn_OP_OBJECT_IDENTIFIER.compare_struct(
+        //&asn_DEF_OBJECT_IDENTIFIER, &(secinfo->protocol), &id_PACE_ECDH_IM_AES_CBC_CMAC_256);
+        //FURI_LOG_D(TAG, "OID compare result: %d", compared);
+
+        return false; // TODO true?
+    } else {
+        FURI_LOG_E(TAG, "ASN.1 decode failed: %d.  %d consumed", rval.code, rval.consumed);
+        passy_log_bitbuffer(TAG, "CardAccess", passy->CardAccess);
+        return false;
+    }
+}
+
 NfcCommand passy_reader_state_machine(PassyReader* passy_reader) {
     furi_assert(passy_reader);
     Passy* passy = passy_reader->passy;
@@ -536,6 +610,8 @@ NfcCommand passy_reader_state_machine(PassyReader* passy_reader) {
                 break;
             }
             passy_log_bitbuffer(TAG, "CardAccess", passy_reader->CardAccess);
+
+            passy_cardaccess_parse(passy);
         } else {
             FURI_LOG_D(TAG, "Select CardAccess failed");
         }
