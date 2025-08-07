@@ -4,7 +4,9 @@ ASN_MODULE_SRCS=	\
 	./lib/asn1/UnicodeVersion.c	\
 	./lib/asn1/DataGroups.c	\
 	./lib/asn1/DG1.c	\
-	./lib/asn1/COM.c
+	./lib/asn1/COM.c	\
+	./lib/asn1/SecurityInfos.c	\
+	./lib/asn1/SecurityInfo.c
 
 ASN_MODULE_HDRS=	\
 	./lib/asn1/MRZ.h	\
@@ -12,17 +14,29 @@ ASN_MODULE_HDRS=	\
 	./lib/asn1/UnicodeVersion.h	\
 	./lib/asn1/DataGroups.h	\
 	./lib/asn1/DG1.h	\
-	./lib/asn1/COM.h
+	./lib/asn1/COM.h	\
+	./lib/asn1/SecurityInfos.h	\
+	./lib/asn1/SecurityInfo.h
 
+ASN_MODULE_HDRS+=./lib/asn1/ANY.h
+ASN_MODULE_SRCS+=./lib/asn1/ANY.c
+ASN_MODULE_HDRS+=./lib/asn1/OCTET_STRING.h
 ASN_MODULE_HDRS+=./lib/asn1/OPEN_TYPE.h
 ASN_MODULE_SRCS+=./lib/asn1/OPEN_TYPE.c
 ASN_MODULE_HDRS+=./lib/asn1/constr_CHOICE.h
+ASN_MODULE_HDRS+=./lib/asn1/INTEGER.h
+ASN_MODULE_SRCS+=./lib/asn1/INTEGER.c
+ASN_MODULE_HDRS+=./lib/asn1/OBJECT_IDENTIFIER.h
+ASN_MODULE_SRCS+=./lib/asn1/OBJECT_IDENTIFIER.c
 ASN_MODULE_HDRS+=./lib/asn1/VisibleString.h
 ASN_MODULE_SRCS+=./lib/asn1/VisibleString.c
-ASN_MODULE_HDRS+=./lib/asn1/OCTET_STRING.h
+ASN_MODULE_HDRS+=./lib/asn1/asn_SET_OF.h
+ASN_MODULE_SRCS+=./lib/asn1/asn_SET_OF.c
 ASN_MODULE_SRCS+=./lib/asn1/constr_CHOICE.c
 ASN_MODULE_HDRS+=./lib/asn1/constr_SEQUENCE.h
 ASN_MODULE_SRCS+=./lib/asn1/constr_SEQUENCE.c
+ASN_MODULE_HDRS+=./lib/asn1/constr_SET_OF.h
+ASN_MODULE_SRCS+=./lib/asn1/constr_SET_OF.c
 ASN_MODULE_HDRS+=./lib/asn1/asn_application.h
 ASN_MODULE_SRCS+=./lib/asn1/asn_application.c
 ASN_MODULE_HDRS+=./lib/asn1/asn_ioc.h
@@ -72,10 +86,12 @@ ASN_MODULE_SRCS+=./lib/asn1/oer_decoder.c
 ASN_MODULE_SRCS+=./lib/asn1/oer_encoder.c
 ASN_MODULE_SRCS+=./lib/asn1/oer_support.c
 ASN_MODULE_SRCS+=./lib/asn1/OPEN_TYPE_oer.c
+ASN_MODULE_SRCS+=./lib/asn1/INTEGER_oer.c
 ASN_MODULE_SRCS+=./lib/asn1/BIT_STRING_oer.c
 ASN_MODULE_SRCS+=./lib/asn1/OCTET_STRING_oer.c
 ASN_MODULE_SRCS+=./lib/asn1/constr_CHOICE_oer.c
 ASN_MODULE_SRCS+=./lib/asn1/constr_SEQUENCE_oer.c
+ASN_MODULE_SRCS+=./lib/asn1/constr_SET_OF_oer.c
 
 ASN_MODULE_CFLAGS=
 

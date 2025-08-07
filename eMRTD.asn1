@@ -16,4 +16,12 @@ COM ::= [APPLICATION 0] IMPLICIT SEQUENCE {
   dataGroups [APPLICATION 28] IMPLICIT DataGroups
 }
 
+SecurityInfos ::= SET OF SecurityInfo
+
+SecurityInfo ::= SEQUENCE {
+  protocol OBJECT IDENTIFIER,
+  requiredData ANY DEFINED BY protocol,
+  optionalData ANY DEFINED BY protocol OPTIONAL
+}
+
 END
