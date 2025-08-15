@@ -1149,6 +1149,7 @@ int SET_OF_compare(const asn_TYPE_descriptor_t* td, const void* aptr, const void
 
         assert(false);
         //qsort(asorted, a->count, sizeof(asorted[0]), SET_OF__compare_cb);
+        assert(false);
         //qsort(bsorted, b->count, sizeof(bsorted[0]), SET_OF__compare_cb);
 
         common_length = (a->count < b->count ? a->count : b->count);

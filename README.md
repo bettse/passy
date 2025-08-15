@@ -86,6 +86,12 @@ Build the ASN.1 code (optional, required for development):
 asn1c -D ./lib/asn1 -no-gen-example -pdu=all eMRTD.asn1
 ```
 
+qsort is not available in the Flipper Zero firmware, but is used by parts of the ASN.1 SET_OF code. This needs to be disabled again after running `asn1c`:
+
+```bash
+ ./hack_asn1_no_qsort.py lib/asn1/constr_SET_OF.c
+```
+
 ---
 
 ## Roadmap / To Do
