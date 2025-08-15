@@ -10,8 +10,8 @@ with open(sys.argv[1], 'r+') as f:
     for line in f:
         m = r_qsort.match(line)
         if m:
-            data.append(m.group(1) + "assert(false);")
-            data.append(m.group(1) + "//" + m.group(2))
+            data.append(m.group(1) + "assert(false);\n")
+            data.append(m.group(1) + "//" + m.group(2) + "\n")
         else:
             data.append(line)
 
