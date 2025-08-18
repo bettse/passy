@@ -3,6 +3,7 @@
 #define ASN_EMIT_DEBUG 0
 #include <lib/asn1/COM.h>
 #include <lib/asn1/SecurityInfos.h>
+#include "oid.h"
 
 #define TAG                         "PassyReader"
 #define PASSY_READER_DG1_CHUNK_SIZE 0x20
@@ -548,25 +549,15 @@ bool passy_cardaccess_parse(Passy* passy) {
         //TODO: algorithm to select the best or try multiple security paramters
         secinfo = secinfos->list.array[0];
 
-        // 0.4.0.127.0.7.2.2.4.2.4 - id_PACE_ECDH_IM_AES_CBC_CMAC_256
+        int algo_nid = oid_oid2nid(&secinfo->protocol);
 
-        OBJECT_IDENTIFIER_t id_PACE_ECDH_IM_AES_CBC_CMAC_256;
-        uint32_t oid[] = {0, 4, 0, 127, 0, 7, 2, 2, 4, 2, 4};
-        OBJECT_IDENTIFIER_set_arcs(
-            &id_PACE_ECDH_IM_AES_CBC_CMAC_256, oid, sizeof(oid) / sizeof(oid[0]));
-
-        memset(payloadDebug, 0, sizeof(payloadDebug));
-        (&asn_DEF_OBJECT_IDENTIFIER)
-            ->op->print_struct(
-                &asn_DEF_OBJECT_IDENTIFIER,
-                &id_PACE_ECDH_IM_AES_CBC_CMAC_256,
-                1,
-                print_struct_callback,
-                payloadDebug);
-        if(strlen(payloadDebug) > 0) {
-            FURI_LOG_D(TAG, "id_PACE_ECDH_IM_AES_CBC_CMAC_256: %s", payloadDebug);
-        } else {
-            FURI_LOG_D(TAG, "id_PACE_ECDH_IM_AES_CBC_CMAC_256: failed");
+        switch(algo_nid) {
+        case NID_id_PACE_ECDH_IM_AES_CBC_CMAC_256:
+            FURI_LOG_D(TAG, "CardAccess algo id-PACE-ECDH-GM-AES-CBC-CMAC-256");
+            break;
+        default:
+            FURI_LOG_D(TAG, "CardAccess algo unsupported");
+            break;
         }
 
         //int compared = asn_OP_OBJECT_IDENTIFIER.compare_struct(

@@ -1,3 +1,7 @@
 dist
 .vscode
 .aider*
+lib/oid/test
+*.swp
+application.fam
+bsearch_test

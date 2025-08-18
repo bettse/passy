@@ -90,8 +90,9 @@ sorted_oids = {k: v for k, v in sorted(oids.items(), key=cmp_to_key(cmp_arcs))}
 c_offset = 0
 nid_count = 0
 so_data = ''
-defines = ''
+defines = '#define NID_undef 0\n'
 c_offsets = {}
+c_lengths = {}
 for name, value in oids.items():
     #print(name, value)
     #print(num_arcs)
@@ -102,21 +103,42 @@ for name, value in oids.items():
     arc_bytes = oid_bytes(value)
 
     c_offsets[name] = c_offset
-
-    c_data = ', '.join(bytes_to_c_array(arc_bytes))
-    so_data += f'    {c_data.ljust(50)} /* [{str(c_offset).rjust(5)}] OBJ_{name}\n'
-    c_offset += len(arc_bytes)
+    c_lengths[name] = len(arc_bytes)
 
     nid_count += 1
     defines += f'#define NID_{name} {nid_count}\n';
 
-print(f'static const unsigned char so[{c_offset}] = {{\n{so_data}}};')
-print()
-print(defines)
+    c_data = ', '.join(bytes_to_c_array(arc_bytes)) + ','
+    so_data += f'    {c_data.ljust(60)} /* [{str(c_offset).rjust(5)}] NID_{name} = {nid_count} */\n'
+    c_offset += len(arc_bytes)
 
-print('static const OID_NID_t nid_objs[NUM_NID] = {')
-for name, value in sorted_oids.items():
-    if len(value) < 2: continue
-    offset = c_offsets[name]
-    print(f'    {{&so[{offset}], {len(value)}, NID_{name}}},')
-print('};')
+with open('oid_nids.h', 'w') as f:
+    f.write('''#ifndef PASSY_OID_NIDS_H
+#define PASSY_OID_NIDS_H
+
+#include <OBJECT_IDENTIFIER.h>
+
+typedef struct OID_NID_s {
+	OBJECT_IDENTIFIER_t oid;
+	int nid;
+} OID_NID_t;
+
+''')
+    f.write(f'#define NUM_NID {nid_count}\n\n')
+    f.write(defines)
+    f.write('''
+#endif''')
+
+with open('oid_data.h', 'w') as f:
+    #TODO: make const
+    f.write('#include "oid_nids.h"\n\n')
+    f.write(f'static unsigned char so[{c_offset}] = {{\n{so_data}}};\n')
+    f.write('\n\n')
+
+    f.write('static const OID_NID_t obj_nids[NUM_NID] = {\n')
+    for name, value in sorted_oids.items():
+        if len(value) < 2: continue
+        offset = c_offsets[name]
+        length = c_lengths[name]
+        f.write(f'    {{{{&so[{offset}], {length}}}, NID_{name}}},\n')
+    f.write('};\n')
