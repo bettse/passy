@@ -552,8 +552,11 @@ bool passy_cardaccess_parse(Passy* passy) {
         int algo_nid = oid_oid2nid(&secinfo->protocol);
 
         switch(algo_nid) {
-        case NID_id_PACE_ECDH_IM_AES_CBC_CMAC_256:
+        case NID_id_PACE_ECDH_GM_AES_CBC_CMAC_256:
             FURI_LOG_D(TAG, "CardAccess algo id-PACE-ECDH-GM-AES-CBC-CMAC-256");
+            break;
+        case NID_id_PACE_ECDH_IM_AES_CBC_CMAC_256:
+            FURI_LOG_D(TAG, "CardAccess algo id-PACE-ECDH-IM-AES-CBC-CMAC-256");
             break;
         default:
             FURI_LOG_D(TAG, "CardAccess algo unsupported");
