@@ -10,6 +10,7 @@
 #include <dialogs/dialogs.h>
 
 #include <gui/modules/submenu.h>
+#include <gui/modules/variable_item_list.h>
 #include <gui/modules/popup.h>
 #include <gui/modules/loading.h>
 #include <gui/modules/text_input.h>
@@ -35,11 +36,12 @@
 
 #define PASSY_TEXT_STORE_SIZE            128
 #define PASSY_FILE_NAME_MAX_LENGTH       32
-#define PASSY_PASSPORT_NUMBER_MAX_LENGTH 32
-#define PASSY_DOB_MAX_LENGTH             8
-#define PASSY_DOE_MAX_LENGTH             8
+#define PASSY_PASSPORT_NUMBER_MAX_LENGTH 20 // Excluding NULL-terminator
+#define PASSY_DOB_MAX_LENGTH             6 // YYMMDD, excluding NULL-terminator
+#define PASSY_DOE_MAX_LENGTH             6 // YYMMDD, excluding NULL-terminator
 
-#define PASSY_DG1_MAX_LENGTH 256
+#define PASSY_DG1_MAX_LENGTH        256
+#define PASSY_CARDACCESS_MAX_LENGTH 256 // TODO: get from specs, this is a guess
 
 enum PassyCustomEvent {
     // Reserve first 100 events for button types and indexes, starting from 0
@@ -69,6 +71,7 @@ struct Passy {
 
     // Common Views
     Submenu* submenu;
+    VariableItemList* variable_item_list;
     Popup* popup;
     Loading* loading;
     TextInput* text_input;
@@ -91,10 +94,12 @@ struct Passy {
     char date_of_expiry[PASSY_DOE_MAX_LENGTH + 1];
 
     BitBuffer* DG1;
+    BitBuffer* CardAccess;
     BitBuffer* COM;
     BitBuffer* dg_header;
 
     PassyReadType read_type;
+    PassyAuthMethod auth_mehod;
 
     size_t offset;
     size_t bytes_total;
@@ -105,6 +110,7 @@ struct Passy {
 
 typedef enum {
     PassyViewMenu,
+    PassyViewVariableItemList,
     PassyViewPopup,
     PassyViewLoading,
     PassyViewTextInput,

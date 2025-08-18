@@ -537,7 +537,9 @@ SET_encode_der(const asn_TYPE_descriptor_t *td, const void *sptr, int tag_mode,
 		 * Sort the underlying members according to their
 		 * canonical tags order. DER encoding mandates it.
 		 */
-		qsort(t2m_build, t2m_count, sizeof(specs->tag2el[0]), _t2e_cmp);
+		
+		assert(false);
+		//qsort(t2m_build, t2m_count, sizeof(specs->tag2el[0]), _t2e_cmp);
 		t2m = t2m_build;
 	} else {
 		/*

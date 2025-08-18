@@ -7,6 +7,7 @@
 typedef enum {
     PassyReadNone = 0,
     PassyReadCOM = 0x011E,
+    PassyReadCardAccess = 0x011C,
     PassyReadDG1 = 0x0101,
     PassyReadDG2 = 0x0102,
     PassyReadDG3 = 0x0103,
@@ -24,8 +25,17 @@ typedef enum {
     PassyReadDG15 = 0x010F,
 } PassyReadType;
 
+typedef enum {
+    PassyAuthMethodNone,
+    PassyAuthMethodAny,
+    PassyAuthMethodBac,
+    PassyAuthMethodPace,
+    PASSY_AUTH_METHOD_COUNT,
+} PassyAuthMethod;
+
+const char* passy_auth_method_string(PassyAuthMethod method);
 void passy_log_bitbuffer(char* tag, char* prefix, BitBuffer* buffer);
-void passy_log_buffer(char* tag, char* prefix, uint8_t* buffer, size_t buffer_len);
+void passy_log_buffer(char* tag, char* prefix, const uint8_t* buffer, size_t buffer_len);
 void passy_mac(uint8_t* key, uint8_t* data, size_t data_length, uint8_t* mac, bool prepadded);
 char passy_checksum(char* str);
 int print_struct_callback(const void* buffer, size_t size, void* app_key);
