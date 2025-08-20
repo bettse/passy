@@ -1,3 +1,7 @@
-dist
+dist/*
 .vscode
-.aider*
+.clang-format
+.clangd
+.editorconfig
+.env
+.ufbt
