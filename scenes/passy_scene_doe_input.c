@@ -39,7 +39,7 @@ bool passy_scene_doe_input_on_event(void* context, SceneManagerEvent event) {
         if(event.event == PassyCustomEventTextInputDone) {
             strlcpy(passy->date_of_expiry, passy->text_store, strlen(passy->text_store) + 1);
             passy_save_mrz_info(passy);
-            scene_manager_next_scene(passy->scene_manager, PassySceneMainMenu);
+            scene_manager_previous_scene(passy->scene_manager);
             consumed = true;
         }
     }
