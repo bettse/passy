@@ -97,6 +97,7 @@ struct Passy {
     BitBuffer* dg_header;
 
     PassyReadType read_type;
+    PassyAuthMethod auth_mehod;
 
     size_t offset;
     size_t bytes_total;

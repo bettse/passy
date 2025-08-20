@@ -11,36 +11,13 @@ enum SubmenuIndex {
     // SubmenuIndexLoad,
 };
 
-typedef enum {
-    MrtdAuthMethodNone,
-    MrtdAuthMethodAny,
-    MrtdAuthMethodBac,
-    MrtdAuthMethodPace,
-    MRTD_AUTH_METHOD_COUNT,
-} MrtdAuthMethod;
-
-const char* mrtd_auth_method_string(MrtdAuthMethod method) {
-    switch(method) {
-    case MrtdAuthMethodBac:
-        return "BAC";
-    case MrtdAuthMethodPace:
-        return "PACE";
-    case MrtdAuthMethodNone:
-        return "None";
-    case MrtdAuthMethodAny:
-        return "Any";
-    default:
-        return "Unknown";
-    }
-}
-
 void passy_scene_auth_menu_auth_method_changed(VariableItem* item) {
     Passy* passy = variable_item_get_context(item);
     UNUSED(passy); // TODO: use to save selected method
     uint8_t index = variable_item_get_current_value_index(item);
-    // TODO: store selected auth method in passy
-    // nfc->dev->dev_data.mrtd_data.auth.method = index;
-    variable_item_set_current_value_text(item, mrtd_auth_method_string(index));
+    // store selected auth method in passy
+    passy->auth_mehod = index;
+    variable_item_set_current_value_text(item, passy_auth_method_string(index));
 }
 
 void passy_scene_auth_menu_var_list_enter_callback(void* context, uint32_t index) {
@@ -53,11 +30,9 @@ void passy_scene_auth_menu_on_enter(void* context) {
     VariableItemList* variable_item_list = passy->variable_item_list;
 
     // By entering the Auth menu, we default to Auth: Any
-    //TODO: read from passy, before: &mrtd_data->auth.method;
-    MrtdAuthMethod temp_method = MrtdAuthMethodNone;
-    MrtdAuthMethod* auth_method = &temp_method;
-    if(*auth_method == MrtdAuthMethodNone) {
-        *auth_method = MrtdAuthMethodAny;
+    PassyAuthMethod* auth_method = &passy->auth_mehod;
+    if(*auth_method == PassyAuthMethodNone) {
+        *auth_method = PassyAuthMethodAny;
     }
 
     VariableItem* item;
@@ -86,13 +61,13 @@ void passy_scene_auth_menu_on_enter(void* context) {
     item = variable_item_list_add(
         variable_item_list,
         "Method",
-        MRTD_AUTH_METHOD_COUNT,
+        PASSY_AUTH_METHOD_COUNT,
         passy_scene_auth_menu_auth_method_changed,
         passy);
 
     value_index = *auth_method;
     variable_item_set_current_value_index(item, value_index);
-    variable_item_set_current_value_text(item, mrtd_auth_method_string(value_index));
+    variable_item_set_current_value_text(item, passy_auth_method_string(value_index));
 
     //TODO: save/load
     //variable_item_list_add(variable_item_list, "Save parameters", 1, NULL, NULL);
