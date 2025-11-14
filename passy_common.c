@@ -121,3 +121,21 @@ char passy_checksum(char* str) {
     }
     return 0x30 + (sum % 10);
 }
+
+size_t furi_string_filename_safe(FuriString* string) {
+    FuriString* safe = furi_string_alloc();
+
+    size_t len = furi_string_size(string);
+    for(size_t ri = 0; ri < len; ++ri) {
+        char c = furi_string_get_char(string, ri);
+
+        if((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') ||
+           c == '_' || c == '-' || '/' || '.') {
+            furi_string_push_back(safe, c);
+        }
+    }
+
+    furi_string_set(string, safe);
+    furi_string_free(safe);
+    return furi_string_size(string);
+}
