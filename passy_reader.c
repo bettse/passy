@@ -154,7 +154,8 @@ NfcCommand passy_reader_send(PassyReader* passy_reader) {
     }
 
     if(use_secure_messaging) {
-        passy_secure_messaging_unwrap_rapdu(passy_reader->secure_messaging, passy_reader->rx_buffer);
+        passy_secure_messaging_unwrap_rapdu(
+            passy_reader->secure_messaging, passy_reader->rx_buffer);
     }
 
     return ret;
