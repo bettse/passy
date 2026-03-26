@@ -489,15 +489,12 @@ NfcCommand passy_reader_read_dg_generic(PassyReader* passy_reader) {
     view_dispatcher_send_custom_event(passy->view_dispatcher, PassyCustomEventReaderReading);
 
     size_t body_size = 1 + passy_asn1_length_length(header + 1) + passy_asn1_length(header + 1);
-    FURI_LOG_I(TAG, "DG%d length: %d", passy->read_type, body_size);
+    int dg_number = passy->read_type & 0xFF;
+    FURI_LOG_I(TAG, "DG%d length: %d", dg_number, body_size);
 
     FuriString* path = furi_string_alloc();
     furi_string_printf(
-        path,
-        "%s/%s-DG%d.bin",
-        STORAGE_APP_DATA_PATH_PREFIX,
-        passy->passport_number,
-        passy->read_type);
+        path, "%s/%s-DG%d.bin", STORAGE_APP_DATA_PATH_PREFIX, passy->passport_number, dg_number);
     passy_furi_string_filename_safe(path);
     FURI_LOG_I(TAG, "Writing to %s", furi_string_get_cstr(path));
 

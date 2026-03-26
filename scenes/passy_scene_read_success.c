@@ -126,9 +126,13 @@ void passy_scene_read_success_on_enter(void* context) {
         dg1 = 0;
 
     } else if(passy->read_type == PassyReadDG2 || passy->read_type == PassyReadDG7) {
-        furi_string_cat_printf(str, "Saved to disk in apps_data/passy/...\n");
+        const char* dg_type = passy->read_type == PassyReadDG2 ? "DG2" : "DG7";
+        furi_string_cat_printf(
+            str, "Saved to apps_data/passy/%s-%s.*\n", passy->passport_number, dg_type);
     } else {
-        furi_string_cat_printf(str, "Saved to disk in apps_data/passy/...\n");
+        int dg_number = passy->read_type & 0xFF;
+        furi_string_cat_printf(
+            str, "Saved to apps_data/passy/%s-DG%d.bin\n", passy->passport_number, dg_number);
     }
     text_box_set_font(passy->text_box, TextBoxFontText);
     text_box_set_text(passy->text_box, furi_string_get_cstr(passy->text_box_store));
