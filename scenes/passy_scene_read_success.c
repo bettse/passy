@@ -33,7 +33,8 @@ void passy_scene_read_success_on_enter(void* context) {
             char payloadDebug[384] = {0};
             memset(payloadDebug, 0, sizeof(payloadDebug));
             (&asn_DEF_DG1)
-                ->op->print_struct(&asn_DEF_DG1, dg1, 1, print_struct_callback, payloadDebug);
+                ->op->print_struct(
+                    &asn_DEF_DG1, dg1, 1, passy_print_struct_callback, payloadDebug);
             if(strlen(payloadDebug) > 0) {
                 FURI_LOG_D(TAG, "DG1: %s", payloadDebug);
             } else {
@@ -41,15 +42,15 @@ void passy_scene_read_success_on_enter(void* context) {
             }
 
             if(dg1->mrz.buf[0] == 'I' && dg1->mrz.buf[1] == 'P') {
-                furi_string_cat_printf(str, "Passport card\n");
+                furi_string_cat_printf(str, "Passport card (IP)\n");
             } else if(dg1->mrz.buf[0] == 'I') {
-                furi_string_cat_printf(str, "ID Card\n");
+                furi_string_cat_printf(str, "ID Card (I)\n");
             } else if(dg1->mrz.buf[0] == 'P') {
-                furi_string_cat_printf(str, "Passport book\n");
+                furi_string_cat_printf(str, "Passport book (P)\n");
             } else if(dg1->mrz.buf[0] == 'A') {
-                furi_string_cat_printf(str, "Residency Permit\n");
+                furi_string_cat_printf(str, "Residency Permit (A)\n");
             } else {
-                furi_string_cat_printf(str, "Unknown\n");
+                furi_string_cat_printf(str, "Unknown (%c%c)\n", dg1->mrz.buf[0], dg1->mrz.buf[1]);
             }
 
             uint8_t td_variant = 0;
@@ -125,19 +126,13 @@ void passy_scene_read_success_on_enter(void* context) {
         dg1 = 0;
 
     } else if(passy->read_type == PassyReadDG2 || passy->read_type == PassyReadDG7) {
-        furi_string_cat_printf(str, "Saved to disk in apps_data/passy/...\n");
+        const char* dg_type = passy->read_type == PassyReadDG2 ? "DG2" : "DG7";
+        furi_string_cat_printf(
+            str, "Saved to apps_data/passy/%s-%s.*\n", passy->passport_number, dg_type);
     } else {
-        char display[9]; // 4 byte header in hex + NULL
-        memset(display, 0, sizeof(display));
-        for(size_t i = 0; i < bit_buffer_get_size_bytes(passy->dg_header); i++) {
-            snprintf(
-                display + (i * 2),
-                sizeof(display),
-                "%02X",
-                bit_buffer_get_data(passy->dg_header)[i]);
-        }
-        furi_string_cat_printf(str, "Unparsed file\n");
-        furi_string_cat_printf(str, "File header: %s\n", display);
+        int dg_number = passy->read_type & 0xFF;
+        furi_string_cat_printf(
+            str, "Saved to apps_data/passy/%s-DG%d.bin\n", passy->passport_number, dg_number);
     }
     text_box_set_font(passy->text_box, TextBoxFontText);
     text_box_set_text(passy->text_box, furi_string_get_cstr(passy->text_box_store));

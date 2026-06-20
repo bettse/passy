@@ -38,7 +38,7 @@ bool passy_scene_dob_input_on_event(void* context, SceneManagerEvent event) {
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == PassyCustomEventTextInputDone) {
-            strlcpy(passy->date_of_birth, passy->text_store, strlen(passy->text_store) + 1);
+            strlcpy(passy->date_of_birth, passy->text_store, sizeof(passy->date_of_birth));
             scene_manager_previous_scene(passy->scene_manager);
             consumed = true;
         }

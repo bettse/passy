@@ -48,7 +48,7 @@ bool passy_scene_passport_number_input_on_event(void* context, SceneManagerEvent
                 passy->text_store[i] = toupper(passy->text_store[i]);
             }
 
-            strlcpy(passy->passport_number, passy->text_store, strlen(passy->text_store) + 1);
+            strlcpy(passy->passport_number, passy->text_store, sizeof(passy->passport_number));
             scene_manager_previous_scene(passy->scene_manager);
             consumed = true;
         }
