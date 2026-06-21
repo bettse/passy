@@ -22,7 +22,20 @@ typedef enum {
     PassyReadDG13 = 0x010D,
     PassyReadDG14 = 0x010E,
     PassyReadDG15 = 0x010F,
+    PassyReadDG16 = 0x0110,
+    PassyReadSOD = 0x011D,
+    PassyReadDumpAll = 0xFFFF,
 } PassyReadType;
+
+typedef enum {
+    PassyAuthMethodNone,
+    PassyAuthMethodAny,
+    PassyAuthMethodBac,
+    PassyAuthMethodPace,
+    PASSY_AUTH_METHOD_COUNT,
+} PassyAuthMethod;
+
+const char* passy_auth_method_string(PassyAuthMethod method);
 
 void passy_log_bitbuffer(char* tag, char* prefix, BitBuffer* buffer);
 void passy_log_buffer(char* tag, char* prefix, const uint8_t* buffer, size_t buffer_len);

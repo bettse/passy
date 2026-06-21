@@ -24,6 +24,8 @@ void passy_scene_read_error_on_enter(void* context) {
 
     if(passy->last_sw == 0x6a82) {
         furi_string_printf(secondary_str, "File not found\nTry again?");
+    } else if(passy->last_sw == 0x6982) {
+        furi_string_printf(secondary_str, "Access denied\n(EAC Required)\nTry again?");
     } else if(passy->last_sw == 0x9000) {
         furi_string_printf(secondary_str, "Try again?");
     } else {
@@ -64,7 +66,7 @@ bool passy_scene_read_error_on_event(void* context, SceneManagerEvent event) {
                 passy->scene_manager, PassySceneAdvancedMenu);
         } else {
             scene_manager_search_and_switch_to_previous_scene(
-                passy->scene_manager, PassySceneMainMenu);
+                passy->scene_manager, passy->is_pace_mode ? PassyScenePaceMenu : PassySceneMainMenu);
         }
         consumed = true;
     }

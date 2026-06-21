@@ -48,7 +48,6 @@ bool passy_scene_adv_warning_on_event(void* context, SceneManagerEvent event) {
         if(event.event == GuiButtonTypeLeft) {
             consumed = scene_manager_previous_scene(passy->scene_manager);
         } else if(event.event == GuiButtonTypeCenter) {
-            passy->read_type = PassyReadCOM;
             scene_manager_next_scene(passy->scene_manager, PassySceneRead);
         }
     } else if(event.type == SceneManagerEventTypeBack) {

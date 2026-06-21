@@ -35,7 +35,7 @@ bool passy_scene_delete_on_event(void* context, SceneManagerEvent event) {
                 scene_manager_next_scene(passy->scene_manager, PassySceneDeleteSuccess);
             } else {
                 scene_manager_search_and_switch_to_previous_scene(
-                    passy->scene_manager, PassySceneMainMenu);
+                    passy->scene_manager, passy->is_pace_mode ? PassyScenePaceMenu : PassySceneMainMenu);
             }
             consumed = true;
         }

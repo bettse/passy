@@ -16,6 +16,7 @@
 ## Tested with the following countries
 
 🇺🇸
+🇵🇱
 🇨🇱
 🇫🇷
 🇬🇧
@@ -97,9 +98,20 @@ asn1c -D ./lib/asn1 -no-gen-example -pdu=all eMRTD.asn1
 
 ---
 
+## PACE Authentication & Deep Scanning (v2.0)
+
+A massive overhaul to Passy was contributed by **honey181**. This update brings the app into the modern era:
+- **Full PACE Authentication:** Added support for the PACE protocol using Brainpool cryptographic curves, allowing Passy to read modern passports and national IDs that completely reject the legacy BAC protocol.
+- **Deep Scanner ("Dump All"):** A robust 31-file deep scanner that seamlessly sweeps the entire theoretical eMRTD filesystem (0x0101 to 0x011F), grabbing undocumented files while safely ignoring dead links without breaking the Secure Messaging connection.
+- **Unified Dumps:** All files and images (like DG2 facial data and DG7 signature data) are now cleanly extracted and saved to `/ext/apps_data/passy/dumps/<passport_number>/`.
+
+*Note: PACE authentication and the Deep Scanner have been heavily tested exclusively against Polish National IDs (eID) 🇵🇱. Compatibility with other modern eMRTDs may vary based on specific curve support. If it works for your country's modern ID, let us know!*
+
+---
+
 ## Roadmap / To Do
 
-- [ ] Support PACE protocol
+- [x] Support PACE protocol (Added in v2.0 by honey181)
 - [ ] Add support for more countries' passports
 - [ ] Improve parsing of additional DGs
 

@@ -132,7 +132,7 @@ bool passy_scene_advanced_menu_on_event(void* context, SceneManagerEvent event) 
         consumed = true;
     } else if(event.type == SceneManagerEventTypeBack) {
         scene_manager_search_and_switch_to_previous_scene(
-            passy->scene_manager, PassySceneMainMenu);
+            passy->scene_manager, passy->is_pace_mode ? PassyScenePaceMenu : PassySceneMainMenu);
         consumed = true;
     }
 

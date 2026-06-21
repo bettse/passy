@@ -15,7 +15,7 @@ bool passy_load_mrz_info(Passy* passy) {
 
     do {
         furi_string_printf(
-            path, "%s/%s%s", STORAGE_APP_DATA_PATH_PREFIX, PASSY_MRZ_INFO_FILENAME, ".txt");
+            path, "/ext/apps_data/passy/%s%s", PASSY_MRZ_INFO_FILENAME, ".txt");
         // Open file
         if(!flipper_format_file_open_existing(file, furi_string_get_cstr(path))) break;
         if(!flipper_format_read_header(file, temp_str, &version)) break;
@@ -59,7 +59,7 @@ bool passy_save_mrz_info(Passy* passy) {
 
     do {
         furi_string_printf(
-            temp_str, "%s/%s%s", STORAGE_APP_DATA_PATH_PREFIX, PASSY_MRZ_INFO_FILENAME, ".txt");
+            temp_str, "/ext/apps_data/passy/%s%s", PASSY_MRZ_INFO_FILENAME, ".txt");
 
         // Open file
         if(!flipper_format_file_open_always(file, furi_string_get_cstr(temp_str))) break;
@@ -91,7 +91,7 @@ bool passy_delete_mrz_info(Passy* passy) {
 
     do {
         furi_string_printf(
-            file_path, "%s/%s%s", STORAGE_APP_DATA_PATH_PREFIX, PASSY_MRZ_INFO_FILENAME, ".txt");
+            file_path, "/ext/apps_data/passy/%s%s", PASSY_MRZ_INFO_FILENAME, ".txt");
 
         if(!storage_simply_remove(passy->storage, furi_string_get_cstr(file_path))) break;
         memset(passy->passport_number, 0, sizeof(passy->passport_number));
@@ -106,6 +106,59 @@ bool passy_delete_mrz_info(Passy* passy) {
 
     furi_string_free(file_path);
     return deleted;
+}
+
+bool passy_load_can_info(Passy* passy) {
+    const char* file_header = "CAN Info";
+    const uint32_t file_version = 1;
+    bool parsed = false;
+    FlipperFormat* file = flipper_format_file_alloc(passy->storage);
+    FuriString* path = furi_string_alloc();
+    FuriString* temp_str = furi_string_alloc();
+    uint32_t version = 0;
+
+    do {
+        furi_string_printf(path, "/ext/apps_data/passy/can_info.txt");
+        if(!flipper_format_file_open_existing(file, furi_string_get_cstr(path))) break;
+        if(!flipper_format_read_header(file, temp_str, &version)) break;
+        if(!furi_string_equal_str(temp_str, file_header) || (version != file_version)) break;
+
+        if(!flipper_format_read_string(file, "CAN", temp_str)) break;
+        strlcpy(passy->passport_number, furi_string_get_cstr(temp_str), PASSY_PASSPORT_NUMBER_MAX_LENGTH);
+
+        parsed = true;
+    } while(false);
+
+    if(parsed) FURI_LOG_I(TAG, "CAN Info loaded");
+
+    furi_string_free(path);
+    furi_string_free(temp_str);
+    flipper_format_free(file);
+
+    return parsed;
+}
+
+bool passy_save_can_info(Passy* passy) {
+    bool saved = false;
+    const char* file_header = "CAN Info";
+    const uint32_t file_version = 1;
+    FlipperFormat* file = flipper_format_file_alloc(passy->storage);
+    FuriString* temp_str = furi_string_alloc();
+
+    do {
+        furi_string_printf(temp_str, "/ext/apps_data/passy/can_info.txt");
+        if(!flipper_format_file_open_always(file, furi_string_get_cstr(temp_str))) break;
+        if(!flipper_format_write_header_cstr(file, file_header, file_version)) break;
+
+        furi_string_set_str(temp_str, passy->passport_number);
+        if(!flipper_format_write_string(file, "CAN", temp_str)) break;
+
+        saved = true;
+    } while(false);
+
+    furi_string_free(temp_str);
+    flipper_format_free(file);
+    return saved;
 }
 
 bool passy_custom_event_callback(void* context, uint32_t event) {
@@ -156,6 +209,13 @@ Passy* passy_alloc() {
     passy->submenu = submenu_alloc();
     view_dispatcher_add_view(
         passy->view_dispatcher, PassyViewMenu, submenu_get_view(passy->submenu));
+
+    // Variable Item List
+    passy->variable_item_list = variable_item_list_alloc();
+    view_dispatcher_add_view(
+        passy->view_dispatcher,
+        PassyViewVariableItemList,
+        variable_item_list_get_view(passy->variable_item_list));
 
     // Popup
     passy->popup = popup_alloc();
@@ -209,6 +269,10 @@ void passy_free(Passy* passy) {
     // Submenu
     view_dispatcher_remove_view(passy->view_dispatcher, PassyViewMenu);
     submenu_free(passy->submenu);
+
+    // Variable Item List
+    view_dispatcher_remove_view(passy->view_dispatcher, PassyViewVariableItemList);
+    variable_item_list_free(passy->variable_item_list);
 
     // Popup
     view_dispatcher_remove_view(passy->view_dispatcher, PassyViewPopup);
@@ -310,7 +374,7 @@ int32_t passy_app(void* p) {
     UNUSED(p);
     Passy* passy = passy_alloc();
 
-    scene_manager_next_scene(passy->scene_manager, PassySceneMainMenu);
+    scene_manager_next_scene(passy->scene_manager, PassySceneStartMenu);
 
     view_dispatcher_run(passy->view_dispatcher);
 

@@ -10,6 +10,7 @@
 #include <dialogs/dialogs.h>
 
 #include <gui/modules/submenu.h>
+#include <gui/modules/variable_item_list.h>
 #include <gui/modules/popup.h>
 #include <gui/modules/loading.h>
 #include <gui/modules/text_input.h>
@@ -55,6 +56,10 @@ enum PassyCustomEvent {
     PassyCustomEventReaderDetected,
     PassyCustomEventReaderAuthenticated,
     PassyCustomEventReaderReading,
+    PassyCustomEventPaceStep1,
+    PassyCustomEventPaceStep2,
+    PassyCustomEventPaceStep3,
+    PassyCustomEventPaceStep4,
 };
 
 struct Passy {
@@ -69,6 +74,7 @@ struct Passy {
 
     // Common Views
     Submenu* submenu;
+    VariableItemList* variable_item_list;
     Popup* popup;
     Loading* loading;
     TextInput* text_input;
@@ -86,6 +92,10 @@ struct Passy {
     FuriString* load_path;
     char file_name[PASSY_FILE_NAME_MAX_LENGTH];
 
+    PassyReadType read_type;
+    PassyAuthMethod auth_method;
+    bool is_pace_mode;
+
     char passport_number[PASSY_PASSPORT_NUMBER_MAX_LENGTH];
     char date_of_birth[PASSY_DOB_MAX_LENGTH];
     char date_of_expiry[PASSY_DOE_MAX_LENGTH];
@@ -94,17 +104,17 @@ struct Passy {
     BitBuffer* COM;
     BitBuffer* dg_header;
 
-    PassyReadType read_type;
-
     size_t offset;
     size_t bytes_total;
 
     uint16_t last_sw;
     const char* proto;
+    bool abort_read;
 };
 
 typedef enum {
     PassyViewMenu,
+    PassyViewVariableItemList,
     PassyViewPopup,
     PassyViewLoading,
     PassyViewTextInput,

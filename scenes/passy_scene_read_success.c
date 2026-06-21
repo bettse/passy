@@ -81,7 +81,8 @@ void passy_scene_read_success_on_enter(void* context) {
             char name[40] = {0};
             memset(name, 0, sizeof(name));
             uint8_t name_offset = td_variant == 3 ? 5 : 60;
-            memcpy(name, dg1->mrz.buf + name_offset, 38);
+            uint8_t name_len = td_variant == 3 ? 39 : 30;
+            memcpy(name, dg1->mrz.buf + name_offset, name_len);
             // Work backwards replace < at the end with \0
             for(size_t i = sizeof(name) - 1; i > 0; i--) {
                 if(name[i] == '<') {
@@ -147,11 +148,57 @@ void passy_scene_read_success_on_enter(void* context) {
     } else if(passy->read_type == PassyReadDG2 || passy->read_type == PassyReadDG7) {
         const char* dg_type = passy->read_type == PassyReadDG2 ? "DG2" : "DG7";
         furi_string_cat_printf(
-            str, "Saved to apps_data/passy/%s-%s.*\n", passy->passport_number, dg_type);
-    } else {
-        int dg_number = passy->read_type & 0xFF;
+            str, "Saved to dumps/%s/%s.*\n", passy->passport_number, dg_type);
+    } else if(passy->read_type == PassyReadDumpAll) {
         furi_string_cat_printf(
-            str, "Saved to apps_data/passy/%s-DG%d.bin\n", passy->passport_number, dg_number);
+            str, "Successfully dumped all files\nto dumps/%s/\n", passy->passport_number);
+    } else {
+        const char* file_name;
+        if (passy->read_type == PassyReadCOM) file_name = "EF_COM.bin";
+        else if (passy->read_type == PassyReadSOD) file_name = "EF_SOD.bin";
+        else {
+            static char buf[16];
+            snprintf(buf, sizeof(buf), "DG%d.bin", passy->read_type & 0xFF);
+            file_name = buf;
+        }
+
+        furi_string_cat_printf(
+            str, "Saved to dumps/%s/%s\n\nStrings found:\n", passy->passport_number, file_name);
+
+        FuriString* path = furi_string_alloc_printf(
+            "/ext/apps_data/passy/dumps/%s/%s", passy->passport_number, file_name);
+        passy_furi_string_filename_safe(path);
+
+        Storage* storage = furi_record_open(RECORD_STORAGE);
+        File* file = storage_file_alloc(storage);
+        if(storage_file_open(file, furi_string_get_cstr(path), FSAM_READ, FSOM_OPEN_EXISTING)) {
+            size_t file_size = storage_file_size(file);
+            uint8_t* buffer = malloc(file_size);
+            if (buffer) {
+                storage_file_read(file, buffer, file_size);
+                
+                char current_string[128];
+                int str_len = 0;
+                for (size_t i = 0; i < file_size; i++) {
+                    if (buffer[i] >= 0x20 && buffer[i] <= 0x7E) {
+                        if (str_len < (int)sizeof(current_string) - 1) {
+                            current_string[str_len++] = buffer[i];
+                        }
+                    } else {
+                        if (str_len > 3) {
+                            current_string[str_len] = '\0';
+                            furi_string_cat_printf(str, "- %s\n", current_string);
+                        }
+                        str_len = 0;
+                    }
+                }
+                free(buffer);
+            }
+        }
+        storage_file_close(file);
+        storage_file_free(file);
+        furi_record_close(RECORD_STORAGE);
+        furi_string_free(path);
     }
     text_box_set_font(passy->text_box, TextBoxFontText);
     text_box_set_text(passy->text_box, furi_string_get_cstr(passy->text_box_store));
@@ -164,7 +211,7 @@ bool passy_scene_read_success_on_event(void* context, SceneManagerEvent event) {
 
     if(event.type == SceneManagerEventTypeCustom) {
     } else if(event.type == SceneManagerEventTypeBack) {
-        const uint32_t possible_scenes[] = {PassySceneAdvancedMenu, PassySceneMainMenu};
+        const uint32_t possible_scenes[] = {PassySceneAdvancedMenu, PassySceneMainMenu, PassyScenePaceMenu};
         scene_manager_search_and_switch_to_previous_scene_one_of(
             passy->scene_manager, possible_scenes, COUNT_OF(possible_scenes));
         consumed = true;

@@ -32,6 +32,7 @@ void passy_scene_detect_scan_callback(NfcScannerEvent event, void* context) {
 
 void passy_scene_read_on_enter(void* context) {
     Passy* passy = context;
+    passy->abort_read = false;
     dolphin_deed(DolphinDeedNfcRead);
 
     passy->poller = NULL;
@@ -106,10 +107,19 @@ bool passy_scene_read_on_event(void* context, SceneManagerEvent event) {
                     (passy->bytes_total / 1024));
                 popup_set_header(popup, passy->text_store, 68, 30, AlignLeft, AlignTop);
             }
+        } else if(event.event == PassyCustomEventPaceStep1) {
+            popup_set_header(popup, "PACE: Init", 68, 30, AlignLeft, AlignTop);
+        } else if(event.event == PassyCustomEventPaceStep2) {
+            popup_set_header(popup, "PACE: Mapping\n(~35 sec)", 68, 30, AlignLeft, AlignTop);
+        } else if(event.event == PassyCustomEventPaceStep3) {
+            popup_set_header(popup, "PACE: Key Auth\n(~35 sec)", 68, 30, AlignLeft, AlignTop);
+        } else if(event.event == PassyCustomEventPaceStep4) {
+            popup_set_header(popup, "PACE: Verify", 68, 30, AlignLeft, AlignTop);
         }
     } else if(event.type == SceneManagerEventTypeBack) {
+        passy->abort_read = true;
         consumed = scene_manager_search_and_switch_to_previous_scene(
-            passy->scene_manager, PassySceneMainMenu);
+            passy->scene_manager, passy->is_pace_mode ? PassyScenePaceMenu : PassySceneMainMenu);
     }
 
     return consumed;

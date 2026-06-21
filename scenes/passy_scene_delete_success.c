@@ -26,7 +26,7 @@ bool passy_scene_delete_success_on_event(void* context, SceneManagerEvent event)
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == PassyCustomEventViewExit) {
             consumed = scene_manager_search_and_switch_to_previous_scene(
-                passy->scene_manager, PassySceneMainMenu);
+                passy->scene_manager, passy->is_pace_mode ? PassyScenePaceMenu : PassySceneMainMenu);
         }
     }
     return consumed;
