@@ -8,8 +8,8 @@ const char* passy_auth_method_string(PassyAuthMethod method) {
     switch(method) {
     case PassyAuthMethodBac:
         return "BAC";
-    case PassyAuthMethodPace:
-        return "PACE";
+    //case PassyAuthMethodPace:
+    //    return "PACE";
     case PassyAuthMethodNone:
         return "None";
     case PassyAuthMethodAny:
